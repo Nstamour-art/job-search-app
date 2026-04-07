@@ -20,7 +20,11 @@ struct JobSearchApp: App {
             schema: schema,
             cloudKitDatabase: .automatic
         )
-        sharedModelContainer = try! ModelContainer(for: schema, configurations: [config])
+        do {
+            sharedModelContainer = try ModelContainer(for: schema, configurations: [config])
+        } catch {
+            fatalError("Failed to create ModelContainer: \(error)")
+        }
     }
 
     var body: some Scene {
