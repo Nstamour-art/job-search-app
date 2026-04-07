@@ -7,6 +7,7 @@ final class SwiftDataModelTests: XCTestCase {
 
     override func setUp() {
         super.setUp()
+        ProfileBasicsTransformer.register()  // ADD THIS LINE
         let config = ModelConfiguration(isStoredInMemoryOnly: true)
         container = try! ModelContainer(
             for: UserProfile.self, WorkExperience.self,

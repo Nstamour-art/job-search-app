@@ -3,11 +3,10 @@ import SwiftData
 
 @main
 struct JobSearchApp: App {
+    let sharedModelContainer: ModelContainer
+
     init() {
         ProfileBasicsTransformer.register()
-    }
-
-    var sharedModelContainer: ModelContainer = {
         let schema = Schema([
             UserProfile.self,
             WorkExperience.self,
@@ -21,8 +20,8 @@ struct JobSearchApp: App {
             schema: schema,
             cloudKitDatabase: .automatic
         )
-        return try! ModelContainer(for: schema, configurations: [config])
-    }()
+        sharedModelContainer = try! ModelContainer(for: schema, configurations: [config])
+    }
 
     var body: some Scene {
         WindowGroup {

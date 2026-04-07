@@ -44,7 +44,7 @@ final class GeneratedDocument {
     var type: DocumentType
     var richContent: Data
     var lastModified: Date
-    var linkedJob: JobPosting
+    @Relationship(inverse: \JobPosting.documents) var linkedJob: JobPosting
 
     init(type: DocumentType, richContent: Data, linkedJob: JobPosting) {
         self.type = type

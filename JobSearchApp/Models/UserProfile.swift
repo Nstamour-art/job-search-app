@@ -13,12 +13,12 @@ struct ProfileBasics: Codable {
 
 @Model
 final class UserProfile {
-    @Attribute(.transformable(by: "ProfileBasicsTransformer"))
+    @Attribute(.transformable(by: ProfileBasicsTransformer.self))
     var basics: ProfileBasics
-    @Relationship(deleteRule: .cascade) var workHistory: [WorkExperience] = []
-    @Relationship(deleteRule: .cascade) var education: [Education] = []
+    @Relationship(deleteRule: .cascade, inverse: \WorkExperience.profile) var workHistory: [WorkExperience] = []
+    @Relationship(deleteRule: .cascade, inverse: \Education.profile)      var education: [Education] = []
     var skills: [String] = []
-    @Relationship(deleteRule: .cascade) var projects: [Project] = []
+    @Relationship(deleteRule: .cascade, inverse: \Project.profile)        var projects: [Project] = []
     @Relationship(deleteRule: .cascade, inverse: \ResumeTheme.profile)
     var resumeTheme: ResumeTheme?
 
