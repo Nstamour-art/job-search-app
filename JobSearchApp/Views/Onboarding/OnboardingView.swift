@@ -172,7 +172,7 @@ struct OnboardingView: View {
         case .projects:
             ProjectsStepView(vm: vm)
         case .theme:
-            Text("Theme — coming in Task 5")   // replaced in Task 5
+            ThemePickerView(vm: vm)
         }
     }
 }
