@@ -56,10 +56,10 @@ struct SkillsChipsView: View {
 
     var body: some View {
         FlowLayout(spacing: 8) {
-            ForEach(skills.indices, id: \.self) { i in
+            ForEach(skills, id: \.self) { skill in
                 HStack(spacing: 4) {
-                    Text(skills[i]).font(.caption)
-                    Button { skills.remove(at: i) } label: {
+                    Text(skill).font(.caption)
+                    Button { skills.removeAll { $0 == skill } } label: {
                         Image(systemName: "xmark").font(.caption2)
                     }
                 }
