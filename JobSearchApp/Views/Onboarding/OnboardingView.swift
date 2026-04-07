@@ -162,17 +162,17 @@ struct OnboardingView: View {
         case .welcome:
             WelcomeView(onStart: { vm.advance() })
         case .basics:
-            Text("Basics — coming in Task 4") // replaced in Task 4
+            BasicsStepView(vm: vm)
         case .workHistory:
-            Text("Work — coming in Task 4")
+            WorkHistoryStepView(vm: vm)
         case .education:
-            Text("Education — coming in Task 4")
+            EducationStepView(vm: vm)
         case .skills:
-            Text("Skills — coming in Task 4")
+            SkillsStepView(vm: vm)
         case .projects:
-            Text("Projects — coming in Task 4")
+            ProjectsStepView(vm: vm)
         case .theme:
-            Text("Theme — coming in Task 5")
+            Text("Theme — coming in Task 5")   // replaced in Task 5
         }
     }
 }
