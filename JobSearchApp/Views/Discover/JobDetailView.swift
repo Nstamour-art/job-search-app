@@ -1,4 +1,5 @@
 import SwiftUI
+import SwiftData
 
 struct JobDetailView: View {
     let job: JobPosting
