@@ -62,7 +62,7 @@ final class DocumentGenerationServiceTests: XCTestCase {
             _ = try await service.generateResume(profile: makeProfile(), job: makeJob())
             XCTFail("Expected error")
         } catch {
-            XCTAssertTrue(error is URLError)
+            XCTAssertEqual((error as? URLError)?.code, .badServerResponse)
         }
     }
 
@@ -72,7 +72,26 @@ final class DocumentGenerationServiceTests: XCTestCase {
             _ = try await service.generateCoverLetter(profile: makeProfile(), job: makeJob())
             XCTFail("Expected error")
         } catch {
-            XCTAssertTrue(error is URLError)
+            XCTAssertEqual((error as? URLError)?.code, .badServerResponse)
         }
+    }
+
+    func test_generateResume_includesProfileAndJobInPrompt() async throws {
+        let mock = MockLLMService(response: "ok")
+        let service = DocumentGenerationService(llm: mock)
+        _ = try await service.generateResume(profile: makeProfile(), job: makeJob())
+        let prompt = mock.capturedPrompt ?? ""
+        XCTAssertTrue(prompt.contains("Jane Doe"), "prompt should contain candidate name")
+        XCTAssertTrue(prompt.contains("TechCo"), "prompt should contain job company")
+        XCTAssertTrue(prompt.contains("Swift"), "prompt should contain skills")
+    }
+
+    func test_generateCoverLetter_includesProfileAndJobInPrompt() async throws {
+        let mock = MockLLMService(response: "ok")
+        let service = DocumentGenerationService(llm: mock)
+        _ = try await service.generateCoverLetter(profile: makeProfile(), job: makeJob())
+        let prompt = mock.capturedPrompt ?? ""
+        XCTAssertTrue(prompt.contains("Jane Doe"), "prompt should contain candidate name")
+        XCTAssertTrue(prompt.contains("iOS Engineer"), "prompt should contain job title")
     }
 }

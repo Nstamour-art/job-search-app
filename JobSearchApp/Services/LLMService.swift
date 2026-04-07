@@ -8,6 +8,7 @@ protocol LLMService {
 final class MockLLMService: LLMService {
     private let response: String
     private let error: Error?
+    var capturedPrompt: String?
 
     init(response: String = "", error: Error? = nil) {
         self.response = response
@@ -15,6 +16,7 @@ final class MockLLMService: LLMService {
     }
 
     func complete(prompt: String, system: String) async throws -> String {
+        capturedPrompt = prompt
         if let error { throw error }
         return response
     }

@@ -1,6 +1,7 @@
 import Foundation
 import SwiftData
 
+@MainActor
 final class DocumentGenerationService {
     private let llm: any LLMService
 
@@ -30,9 +31,9 @@ final class DocumentGenerationService {
     // MARK: - Private
 
     private let dateFormatter: DateFormatter = {
-        let f = DateFormatter()
-        f.dateFormat = "MMM yyyy"
-        return f
+        let formatter = DateFormatter()
+        formatter.dateFormat = "MMM yyyy"
+        return formatter
     }()
 
     private func buildPrompt(profile: UserProfile, job: JobPosting) -> String {
@@ -43,8 +44,8 @@ final class DocumentGenerationService {
         lines.append("Email: \(profile.basics.email)")
         if let phone = profile.basics.phone { lines.append("Phone: \(phone)") }
         lines.append("Location: \(profile.basics.location)")
-        if let li = profile.basics.linkedIn { lines.append("LinkedIn: \(li)") }
-        if let gh = profile.basics.github { lines.append("GitHub: \(gh)") }
+        if let linkedIn = profile.basics.linkedIn { lines.append("LinkedIn: \(linkedIn)") }
+        if let github = profile.basics.github { lines.append("GitHub: \(github)") }
 
         let sorted = profile.workHistory.sorted { $0.startDate > $1.startDate }
         if !sorted.isEmpty {
