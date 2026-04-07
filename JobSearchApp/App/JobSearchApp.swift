@@ -23,7 +23,7 @@ struct JobSearchApp: App {
                     MainTabView()
                         .environmentObject(container)
                 } else {
-                    OnboardingView(llmService: container.llmService)
+                    OnboardingView()
                         .environmentObject(container)
                         .environmentObject(onboardingCoordinator)
                 }

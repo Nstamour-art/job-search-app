@@ -6,149 +6,120 @@ import SwiftData
 @MainActor
 final class OnboardingViewModel: ObservableObject {
     enum Step: Int, CaseIterable {
-        case welcome, basics, workHistory, education, skills, projects, theme
+        case welcome, name, email, claudeKey, profileDetails, tavilyKey
     }
 
     @Published var currentStep: Step = .welcome
-    @Published var isLoading = false
-    @Published var errorMessage: String?
 
-    // Text inputs — one per section
-    @Published var basicsInput = ""
-    @Published var workInput = ""
-    @Published var educationInput = ""
-    @Published var skillsInput = ""
-    @Published var projectsInput = ""
+    // Step 1 — Name
+    @Published var firstName = ""
+    @Published var lastName = ""
 
-    // Parsed results
-    @Published var parsedBasics: ParsedBasics?
-    @Published var parsedWork: [ParsedWorkExperience] = []
-    @Published var parsedEducation: [ParsedEducation] = []
-    @Published var parsedSkills: [String] = []
-    @Published var parsedProjects: [ParsedProject] = []
-    @Published var selectedTheme: ThemeName = .modern
+    // Step 2 — Contact
+    @Published var email = ""
+    @Published var phone = ""
+    @Published var location = ""
 
-    private let parseService: ProfileParseService
+    // Step 3 — Claude API key
+    @Published var claudeKey = ""
 
-    init(parseService: ProfileParseService) {
-        self.parseService = parseService
+    // Step 4 — Profile details
+    @Published var currentJobTitle = ""
+    @Published var currentCompany = ""
+    @Published var skillsText = ""          // comma-separated, split on save
+    @Published var educationInstitution = ""
+    @Published var educationDegree = ""
+    @Published var educationField = ""
+
+    // Step 5 — Tavily key
+    @Published var tavilyKey = ""
+
+    var fullName: String {
+        "\(firstName.trimmingCharacters(in: .whitespaces)) \(lastName.trimmingCharacters(in: .whitespaces))"
+            .trimmingCharacters(in: .whitespaces)
+    }
+
+    var canAdvanceFromName: Bool {
+        !firstName.trimmingCharacters(in: .whitespaces).isEmpty
+    }
+
+    var canAdvanceFromEmail: Bool {
+        !email.trimmingCharacters(in: .whitespaces).isEmpty &&
+        !location.trimmingCharacters(in: .whitespaces).isEmpty
     }
 
     func advance() {
         guard let next = Step(rawValue: currentStep.rawValue + 1) else { return }
-        errorMessage = nil
         currentStep = next
     }
 
-    func parseBasics() async {
-        await run { [self] in parsedBasics = try await parseService.parseBasics(from: basicsInput) }
-    }
+    func saveProfile(context: ModelContext, coordinator: OnboardingCoordinator, container: AppContainer) {
+        if !claudeKey.trimmingCharacters(in: .whitespaces).isEmpty {
+            try? KeychainManager.shared.save(claudeKey, forKey: KeychainKeys.anthropicAPIKey)
+        }
+        if !tavilyKey.trimmingCharacters(in: .whitespaces).isEmpty {
+            try? KeychainManager.shared.save(tavilyKey, forKey: KeychainKeys.tavilyAPIKey)
+        }
+        container.refreshLLMService()
 
-    func parseWork() async {
-        await run { [self] in parsedWork = try await parseService.parseWorkExperiences(from: workInput) }
-    }
-
-    func parseEducation() async {
-        await run { [self] in parsedEducation = try await parseService.parseEducation(from: educationInput) }
-    }
-
-    func parseSkills() async {
-        await run { [self] in parsedSkills = try await parseService.parseSkills(from: skillsInput) }
-    }
-
-    func parseProjects() async {
-        await run { [self] in parsedProjects = try await parseService.parseProjects(from: projectsInput) }
-    }
-
-    func saveProfile(context: ModelContext, coordinator: OnboardingCoordinator) {
-        guard let basics = parsedBasics else { return }
-
-        let profileBasics = ProfileBasics(
-            name: basics.name,
-            email: basics.email,
-            phone: basics.phone,
-            location: basics.location,
-            linkedIn: basics.linkedIn,
-            github: basics.github,
-            website: basics.website
+        let basics = ProfileBasics(
+            name: fullName.isEmpty ? firstName : fullName,
+            email: email.trimmingCharacters(in: .whitespaces),
+            phone: phone.trimmingCharacters(in: .whitespaces).isEmpty ? nil
+                   : phone.trimmingCharacters(in: .whitespaces),
+            location: location.trimmingCharacters(in: .whitespaces),
+            linkedIn: nil, github: nil, website: nil
         )
-        let theme = ResumeTheme(name: selectedTheme, accentColor: "#1E3A5F", bodyFontSize: 11.0)
-        let profile = UserProfile(basics: profileBasics, resumeTheme: theme)
+        let profile = UserProfile(basics: basics)
+
+        let parsedSkills = skillsText
+            .components(separatedBy: ",")
+            .map { $0.trimmingCharacters(in: .whitespaces) }
+            .filter { !$0.isEmpty }
         profile.skills = parsedSkills
+
         context.insert(profile)
 
-        for p in parsedWork {
+        if !currentJobTitle.trimmingCharacters(in: .whitespaces).isEmpty ||
+           !currentCompany.trimmingCharacters(in: .whitespaces).isEmpty {
             let exp = WorkExperience(
-                company: p.company,
-                title: p.title,
-                startDate: yearMonth(p.startDate) ?? Date(),
-                endDate: p.endDate.flatMap { yearMonth($0) },
-                isCurrent: p.isCurrent,
-                bullets: p.bullets
+                company: currentCompany.trimmingCharacters(in: .whitespaces).isEmpty
+                    ? "Unknown" : currentCompany.trimmingCharacters(in: .whitespaces),
+                title: currentJobTitle.trimmingCharacters(in: .whitespaces).isEmpty
+                    ? "Unknown" : currentJobTitle.trimmingCharacters(in: .whitespaces),
+                startDate: Date(),
+                isCurrent: true
             )
             exp.profile = profile
             profile.workHistory.append(exp)
             context.insert(exp)
         }
 
-        for p in parsedEducation {
+        if !educationInstitution.trimmingCharacters(in: .whitespaces).isEmpty {
             let edu = Education(
-                institution: p.institution,
-                degree: p.degree,
-                field: p.field,
-                graduationDate: p.graduationDate.flatMap { yearMonth($0) }
+                institution: educationInstitution.trimmingCharacters(in: .whitespaces),
+                degree: educationDegree.trimmingCharacters(in: .whitespaces).isEmpty
+                    ? "Degree" : educationDegree.trimmingCharacters(in: .whitespaces),
+                field: educationField.trimmingCharacters(in: .whitespaces).isEmpty
+                    ? "Unknown" : educationField.trimmingCharacters(in: .whitespaces)
             )
             edu.profile = profile
             profile.education.append(edu)
             context.insert(edu)
         }
 
-        for p in parsedProjects {
-            let proj = Project(
-                name: p.name,
-                projectDescription: p.description,
-                url: p.url,
-                bullets: p.bullets
-            )
-            proj.profile = profile
-            profile.projects.append(proj)
-            context.insert(proj)
-        }
-
         try? context.save()
         coordinator.completeOnboarding()
-    }
-
-    // MARK: - Private helpers
-
-    private func run(_ block: @escaping () async throws -> Void) async {
-        isLoading = true
-        errorMessage = nil
-        do { try await block() } catch { errorMessage = error.localizedDescription }
-        isLoading = false
-    }
-
-    /// Converts "YYYY-MM" to a Date at the first of that month.
-    private func yearMonth(_ string: String) -> Date? {
-        let f = DateFormatter()
-        f.dateFormat = "yyyy-MM"
-        f.locale = Locale(identifier: "en_US_POSIX")
-        return f.date(from: string)
     }
 }
 
 // MARK: - View
 
 struct OnboardingView: View {
-    @StateObject private var vm: OnboardingViewModel
+    @StateObject private var vm = OnboardingViewModel()
     @EnvironmentObject private var coordinator: OnboardingCoordinator
+    @EnvironmentObject private var container: AppContainer
     @Environment(\.modelContext) private var modelContext
-
-    init(llmService: any LLMService) {
-        _vm = StateObject(wrappedValue: OnboardingViewModel(
-            parseService: ProfileParseService(llm: llmService)
-        ))
-    }
 
     var body: some View {
         NavigationStack {
@@ -161,18 +132,18 @@ struct OnboardingView: View {
         switch vm.currentStep {
         case .welcome:
             WelcomeView(onStart: { vm.advance() })
-        case .basics:
-            BasicsStepView(vm: vm)
-        case .workHistory:
-            WorkHistoryStepView(vm: vm)
-        case .education:
-            EducationStepView(vm: vm)
-        case .skills:
-            SkillsStepView(vm: vm)
-        case .projects:
-            ProjectsStepView(vm: vm)
-        case .theme:
-            ThemePickerView(vm: vm)
+        case .name:
+            NameStepView(vm: vm)
+        case .email:
+            EmailStepView(vm: vm)
+        case .claudeKey:
+            ClaudeKeyStepView(vm: vm)
+        case .profileDetails:
+            ProfileDetailsStepView(vm: vm)
+        case .tavilyKey:
+            TavilyKeyStepView(vm: vm) {
+                vm.saveProfile(context: modelContext, coordinator: coordinator, container: container)
+            }
         }
     }
 }
