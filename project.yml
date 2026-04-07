@@ -1,0 +1,62 @@
+name: JobSearchApp
+options:
+  bundleIdPrefix: com.nstamour
+  deploymentTarget:
+    iOS: "17.0"
+  xcodeVersion: "16.0"
+  createIntermediateGroups: true
+
+targets:
+  JobSearchApp:
+    type: application
+    platform: iOS
+    deploymentTarget: "17.0"
+    sources:
+      - path: JobSearchApp
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.nstamour.JobSearchApp
+        SWIFT_VERSION: "5.10"
+        INFOPLIST_FILE: JobSearchApp/Info.plist
+        ENABLE_PREVIEWS: YES
+        DEVELOPMENT_TEAM: ""
+    info:
+      path: JobSearchApp/Info.plist
+      properties:
+        UILaunchScreen:
+          UIColorName: ""
+        UIFileSharingEnabled: true
+        LSSupportsOpeningDocumentsInPlace: true
+        NSUbiquitousContainers:
+          iCloud.com.nstamour.JobSearchApp:
+            NSUbiquitousContainerIsDocumentScopePublic: true
+            NSUbiquitousContainerName: JobSearchApp
+            NSUbiquitousContainerSupportedFolderLevels: Any
+    entitlements:
+      path: JobSearchApp/JobSearchApp.entitlements
+      properties:
+        com.apple.developer.icloud-services:
+          - CloudKit
+        com.apple.developer.icloud-container-identifiers:
+          - iCloud.com.nstamour.JobSearchApp
+    capabilities:
+      - type: iCloud
+        cloudKit: true
+        cloudKitContainers:
+          - iCloud.com.nstamour.JobSearchApp
+      - type: backgroundModes
+        modes:
+          - fetch
+
+  JobSearchAppTests:
+    type: bundle.unit-test
+    platform: iOS
+    deploymentTarget: "17.0"
+    sources:
+      - path: JobSearchAppTests
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.nstamour.JobSearchAppTests
+        SWIFT_VERSION: "5.10"
+    dependencies:
+      - target: JobSearchApp
