@@ -2,13 +2,13 @@ import XCTest
 import SwiftData
 @testable import JobSearchApp
 
+@MainActor
 final class SwiftDataModelTests: XCTestCase {
     var container: ModelContainer!
 
     override func setUp() {
         super.setUp()
-        ProfileBasicsTransformer.register()
-        let config = ModelConfiguration(isStoredInMemoryOnly: true)
+        let config = ModelConfiguration(isStoredInMemoryOnly: true, cloudKitDatabase: .none)
         container = try! ModelContainer(
             for: UserProfile.self, WorkExperience.self,
                  Education.self, Project.self, ResumeTheme.self,

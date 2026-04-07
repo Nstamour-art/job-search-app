@@ -13,7 +13,6 @@ struct ProfileBasics: Codable {
 
 @Model
 final class UserProfile {
-    @Attribute(.transformable(by: ProfileBasicsTransformer.self))
     var basics: ProfileBasics
     @Relationship(deleteRule: .cascade, inverse: \WorkExperience.profile) var workHistory: [WorkExperience] = []
     @Relationship(deleteRule: .cascade, inverse: \Education.profile)      var education: [Education] = []
@@ -25,28 +24,6 @@ final class UserProfile {
     init(basics: ProfileBasics, resumeTheme: ResumeTheme? = nil) {
         self.basics = basics
         self.resumeTheme = resumeTheme
-    }
-}
-
-final class ProfileBasicsTransformer: ValueTransformer {
-    override class func transformedValueClass() -> AnyClass { NSData.self }
-    override class func allowsReverseTransformation() -> Bool { true }
-
-    override func transformedValue(_ value: Any?) -> Any? {
-        guard let basics = value as? ProfileBasics else { return nil }
-        return try? JSONEncoder().encode(basics) as NSData
-    }
-
-    override func reverseTransformedValue(_ value: Any?) -> Any? {
-        guard let data = value as? Data else { return nil }
-        return try? JSONDecoder().decode(ProfileBasics.self, from: data)
-    }
-
-    static func register() {
-        ValueTransformer.setValueTransformer(
-            ProfileBasicsTransformer(),
-            forName: NSValueTransformerName("ProfileBasicsTransformer")
-        )
     }
 }
 
