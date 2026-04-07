@@ -63,21 +63,21 @@ struct ApplicationsView: View {
 private struct ApplicationRow: View {
     let job: JobPosting
 
+    private static let dateFormatter: DateFormatter = {
+        let f = DateFormatter()
+        f.dateStyle = .medium
+        f.timeStyle = .none
+        return f
+    }()
+
     var body: some View {
         VStack(alignment: .leading, spacing: 2) {
             Text(job.title).font(.subheadline.bold())
             Text("\(job.company) · \(job.location)")
                 .font(.caption).foregroundStyle(.secondary)
-            Text(dateLabel(job.dateFound))
+            Text(Self.dateFormatter.string(from: job.dateFound))
                 .font(.caption2).foregroundStyle(.tertiary)
         }
         .padding(.vertical, 2)
-    }
-
-    private func dateLabel(_ date: Date) -> String {
-        let f = DateFormatter()
-        f.dateStyle = .medium
-        f.timeStyle = .none
-        return f.string(from: date)
     }
 }
