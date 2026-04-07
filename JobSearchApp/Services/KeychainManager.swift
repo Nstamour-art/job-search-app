@@ -14,13 +14,15 @@ enum KeychainError: LocalizedError {
 
 final class KeychainManager {
     static let shared = KeychainManager()
+    private let service = Bundle.main.bundleIdentifier ?? "com.jobsearchapp"
     private init() {}
 
     func save(_ value: String, forKey key: String) throws {
         let data = Data(value.utf8)
-        try? delete(key: key)
+        try delete(key: key)
         let query: [CFString: Any] = [
             kSecClass: kSecClassGenericPassword,
+            kSecAttrService: service,
             kSecAttrAccount: key,
             kSecValueData: data
         ]
@@ -33,6 +35,7 @@ final class KeychainManager {
     func retrieve(forKey key: String) throws -> String? {
         let query: [CFString: Any] = [
             kSecClass: kSecClassGenericPassword,
+            kSecAttrService: service,
             kSecAttrAccount: key,
             kSecReturnData: true,
             kSecMatchLimit: kSecMatchLimitOne
@@ -49,6 +52,7 @@ final class KeychainManager {
     func delete(key: String) throws {
         let query: [CFString: Any] = [
             kSecClass: kSecClassGenericPassword,
+            kSecAttrService: service,
             kSecAttrAccount: key
         ]
         let status = SecItemDelete(query as CFDictionary)
