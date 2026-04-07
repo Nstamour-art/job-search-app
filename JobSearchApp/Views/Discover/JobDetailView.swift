@@ -5,6 +5,7 @@ struct JobDetailView: View {
     let job: JobPosting
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
+    @State private var showGenerateDocs = false
 
     var body: some View {
         ScrollView {
@@ -44,14 +45,35 @@ struct JobDetailView: View {
 
                 Divider()
 
+                // Generate documents
+                Button("Generate Documents") { showGenerateDocs = true }
+                    .buttonStyle(.bordered)
+                    .frame(maxWidth: .infinity)
+
+                if !job.documents.isEmpty {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Generated Documents")
+                            .font(.headline)
+                        ForEach(job.documents) { doc in
+                            NavigationLink(destination: DocumentDetailView(document: doc)) {
+                                DocumentRow(document: doc)
+                            }
+                        }
+                    }
+                }
+
+                Divider()
+
                 // Status actions
                 statusActions
-
             }
             .padding()
         }
         .navigationTitle("Job Detail")
         .navigationBarTitleDisplayMode(.inline)
+        .sheet(isPresented: $showGenerateDocs) {
+            GenerateDocumentsView(job: job)
+        }
     }
 
     @ViewBuilder
