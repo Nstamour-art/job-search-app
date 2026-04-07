@@ -77,4 +77,14 @@ final class ProfileParseServiceTests: XCTestCase {
             XCTAssertTrue(error is DecodingError)
         }
     }
+
+    func test_parseBasics_propagatesLLMError() async {
+        let service = ProfileParseService(llm: MockLLMService(error: URLError(.badServerResponse)))
+        do {
+            _ = try await service.parseBasics(from: "some text")
+            XCTFail("Expected error")
+        } catch {
+            XCTAssertTrue(error is URLError)
+        }
+    }
 }

@@ -39,6 +39,7 @@ struct ParsedProject: Decodable {
 
 final class ProfileParseService {
     private let llm: any LLMService
+    private let decoder = JSONDecoder()
 
     init(llm: any LLMService) {
         self.llm = llm
@@ -105,13 +106,18 @@ final class ProfileParseService {
     private func stripFences(from text: String) -> String {
         let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
         guard trimmed.hasPrefix("```") else { return trimmed }
-        let lines = trimmed.components(separatedBy: "\n")
-        let body = lines.dropFirst().dropLast().joined(separator: "\n")
-        return body.trimmingCharacters(in: .whitespacesAndNewlines)
+        var lines = trimmed.components(separatedBy: "\n")
+        // Remove opening fence line (```json or ```)
+        lines.removeFirst()
+        // Remove closing fence only if the last line is actually a fence
+        if lines.last?.trimmingCharacters(in: .whitespaces) == "```" {
+            lines.removeLast()
+        }
+        return lines.joined(separator: "\n").trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
     private func decode<T: Decodable>(_ type: T.Type, from raw: String) throws -> T {
         let json = stripFences(from: raw)
-        return try JSONDecoder().decode(T.self, from: Data(json.utf8))
+        return try decoder.decode(T.self, from: Data(json.utf8))
     }
 }
