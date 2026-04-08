@@ -1,9 +1,11 @@
 import Foundation
 import SwiftData
+import Observation
 
+@Observable
 @MainActor
-final class ProfileViewModel: ObservableObject {
-    @Published var profile: UserProfile?
+final class ProfileViewModel {
+    var profile: UserProfile?
 
     func load(context: ModelContext) {
         profile = try? context.fetch(FetchDescriptor<UserProfile>()).first

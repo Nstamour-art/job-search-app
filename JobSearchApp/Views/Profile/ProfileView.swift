@@ -2,7 +2,7 @@ import SwiftUI
 import SwiftData
 
 struct ProfileView: View {
-    @StateObject private var vm = ProfileViewModel()
+    @State private var vm = ProfileViewModel()
     @Environment(\.modelContext) private var modelContext
 
     @State private var showEditBasics = false
