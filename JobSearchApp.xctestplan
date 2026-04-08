@@ -1,0 +1,28 @@
+{
+  "configurations" : [
+    {
+      "id" : "159653FE-5407-404F-A689-057060192639",
+      "name" : "Test Scheme Action",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "targetForVariableExpansion" : {
+      "containerPath" : "container:JobSearchApp.xcodeproj",
+      "identifier" : "A19CEEE2D4D6A74873458965",
+      "name" : "JobSearchApp"
+    }
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:JobSearchApp.xcodeproj",
+        "identifier" : "5631CECB3B266F992159CAB3",
+        "name" : "JobSearchAppTests"
+      }
+    }
+  ],
+  "version" : 1
+}
