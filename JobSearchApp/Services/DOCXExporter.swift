@@ -3,7 +3,7 @@ import ZIPFoundation
 
 enum DOCXExporter {
     static func export(_ text: String) -> Data {
-        guard let archive = try? Archive(accessMode: .create) else { return Data() }
+        guard let archive = Archive(accessMode: .create) else { return Data() }
         add(to: archive, path: "[Content_Types].xml",          content: contentTypes)
         add(to: archive, path: "_rels/.rels",                  content: relationships)
         add(to: archive, path: "word/document.xml",            content: document(for: text))
