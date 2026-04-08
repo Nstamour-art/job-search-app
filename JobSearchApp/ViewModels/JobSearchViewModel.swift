@@ -1,11 +1,13 @@
 import Foundation
 import SwiftData
+import Observation
 
+@Observable
 @MainActor
-final class JobSearchViewModel: ObservableObject {
-    @Published var isSearching = false
-    @Published var progress: String?
-    @Published var errorMessage: String?
+final class JobSearchViewModel {
+    var isSearching = false
+    var progress: String?
+    var errorMessage: String?
 
     func search(
         query: String,

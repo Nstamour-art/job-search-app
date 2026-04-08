@@ -9,7 +9,7 @@ struct DiscoverView: View {
 
     @State private var showAddJob = false
     @State private var searchQuery = ""
-    @StateObject private var searchVM = JobSearchViewModel()
+    @State private var searchVM = JobSearchViewModel()
 
     private var savedJobs: [JobPosting] { allJobs.filter { $0.status == .saved } }
     private var profile: UserProfile? { profiles.first }
