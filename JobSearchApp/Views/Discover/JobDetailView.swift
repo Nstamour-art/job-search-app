@@ -28,7 +28,7 @@ struct JobDetailView: View {
                 }
                 .padding()
                 .background(Color(.secondarySystemBackground))
-                .clipShape(RoundedRectangle(cornerRadius: 10))
+                .clipShape(.rect(cornerRadius: 10))
 
                 // URL link
                 if !job.url.isEmpty, let url = URL(string: job.url) {

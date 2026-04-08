@@ -26,7 +26,7 @@ struct WelcomeView: View {
                     .padding()
                     .background(Color.accentColor)
                     .foregroundStyle(.white)
-                    .clipShape(RoundedRectangle(cornerRadius: 14))
+                    .clipShape(.rect(cornerRadius: 14))
             }
             .padding(.horizontal, 24)
             .padding(.bottom, 40)
