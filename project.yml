@@ -6,6 +6,11 @@ options:
   xcodeVersion: "16.0"
   createIntermediateGroups: true
 
+packages:
+  ZIPFoundation:
+    url: https://github.com/weichsel/ZIPFoundation.git
+    minorVersion: "0.9"
+
 targets:
   JobSearchApp:
     type: application
@@ -32,6 +37,9 @@ targets:
             NSUbiquitousContainerIsDocumentScopePublic: true
             NSUbiquitousContainerName: JobSearchApp
             NSUbiquitousContainerSupportedFolderLevels: Any
+    dependencies:
+      - package: ZIPFoundation
+        product: ZIPFoundation
     entitlements:
       path: JobSearchApp/JobSearchApp.entitlements
       properties:
@@ -61,3 +69,24 @@ targets:
         GENERATE_INFOPLIST_FILE: YES
     dependencies:
       - target: JobSearchApp
+      - package: ZIPFoundation
+        product: ZIPFoundation
+
+schemes:
+  JobSearchApp:
+    build:
+      targets:
+        JobSearchApp: all
+        JobSearchAppTests: [test]
+    run:
+      config: Debug
+    test:
+      config: Debug
+      targets:
+        - JobSearchAppTests
+    profile:
+      config: Release
+    analyze:
+      config: Debug
+    archive:
+      config: Release
