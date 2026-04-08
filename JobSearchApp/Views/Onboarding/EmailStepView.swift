@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct EmailStepView: View {
-    @ObservedObject var vm: OnboardingViewModel
+    @Bindable var vm: OnboardingViewModel
 
     var body: some View {
         ScrollView {

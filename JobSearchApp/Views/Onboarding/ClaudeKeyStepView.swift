@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct ClaudeKeyStepView: View {
-    @ObservedObject var vm: OnboardingViewModel
+    @Bindable var vm: OnboardingViewModel
     @Environment(\.openURL) private var openURL
 
     var body: some View {

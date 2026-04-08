@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct TavilyKeyStepView: View {
-    @ObservedObject var vm: OnboardingViewModel
+    @Bindable var vm: OnboardingViewModel
     let onFinish: () -> Void
     @Environment(\.openURL) private var openURL
 

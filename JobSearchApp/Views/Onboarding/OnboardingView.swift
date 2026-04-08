@@ -3,36 +3,35 @@ import SwiftData
 
 // MARK: - ViewModel
 
-@MainActor
-final class OnboardingViewModel: ObservableObject {
+@Observable @MainActor final class OnboardingViewModel {
     enum Step: Int, CaseIterable {
         case welcome, name, email, claudeKey, profileDetails, tavilyKey
     }
 
-    @Published var currentStep: Step = .welcome
+    var currentStep: Step = .welcome
 
     // Step 1 — Name
-    @Published var firstName = ""
-    @Published var lastName = ""
+    var firstName = ""
+    var lastName = ""
 
     // Step 2 — Contact
-    @Published var email = ""
-    @Published var phone = ""
-    @Published var location = ""
+    var email = ""
+    var phone = ""
+    var location = ""
 
     // Step 3 — Claude API key
-    @Published var claudeKey = ""
+    var claudeKey = ""
 
     // Step 4 — Profile details
-    @Published var currentJobTitle = ""
-    @Published var currentCompany = ""
-    @Published var skillsText = ""          // comma-separated, split on save
-    @Published var educationInstitution = ""
-    @Published var educationDegree = ""
-    @Published var educationField = ""
+    var currentJobTitle = ""
+    var currentCompany = ""
+    var skillsText = ""          // comma-separated, split on save
+    var educationInstitution = ""
+    var educationDegree = ""
+    var educationField = ""
 
     // Step 5 — Tavily key
-    @Published var tavilyKey = ""
+    var tavilyKey = ""
 
     var fullName: String {
         "\(firstName.trimmingCharacters(in: .whitespaces)) \(lastName.trimmingCharacters(in: .whitespaces))"
@@ -116,7 +115,7 @@ final class OnboardingViewModel: ObservableObject {
 // MARK: - View
 
 struct OnboardingView: View {
-    @StateObject private var vm = OnboardingViewModel()
+    @State private var vm = OnboardingViewModel()
     @Environment(OnboardingCoordinator.self) private var coordinator
     @Environment(AppContainer.self) private var container
     @Environment(\.modelContext) private var modelContext
