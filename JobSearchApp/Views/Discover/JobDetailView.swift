@@ -12,23 +12,7 @@ struct JobDetailView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
 
-                // Header
-                VStack(alignment: .leading, spacing: 6) {
-                    Text(job.title).font(.title2.bold())
-                    Text(job.company).font(.headline).foregroundStyle(.secondary)
-                    Text(job.location).font(.subheadline).foregroundStyle(.secondary)
-                }
-
-                // Priority
-                // iOS 26+: TODO replace .ultraThinMaterial with .glassEffect(.regular, in: .rect(cornerRadius: 10))
-                HStack(spacing: 10) {
-                    PriorityBadge(score: job.priorityScore)
-                    Text(job.priorityReasoning)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
-                .padding()
-                .background(.ultraThinMaterial, in: .rect(cornerRadius: 10))
+                headerAndPriority
 
                 // URL link
                 if !job.url.isEmpty, let url = URL(string: job.url) {
@@ -125,4 +109,75 @@ struct JobDetailView: View {
 private struct ApplyItem: Identifiable {
     let id = UUID()
     let url: URL
+}
+
+// MARK: - Liquid Glass helpers
+
+enum PriorityCardStyle: Equatable {
+    case glass(cornerRadius: CGFloat)
+    case material(cornerRadius: CGFloat)
+}
+
+func priorityCardStyle() -> PriorityCardStyle {
+    if #available(iOS 26, *) {
+        .glass(cornerRadius: 12)
+    } else {
+        .material(cornerRadius: 12)
+    }
+}
+
+private extension JobDetailView {
+    @ViewBuilder
+    var headerAndPriority: some View {
+        if #available(iOS 26, *) {
+            GlassEffectContainer(spacing: 12) {
+                priorityHeaderGlass(headerSection)
+                priorityCardGlass(prioritySection)
+            }
+        } else {
+            headerSection
+            priorityCardGlass(prioritySection)
+        }
+    }
+
+    @ViewBuilder
+    var headerSection: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text(job.title).font(.title2.bold())
+            Text(job.company).font(.headline).foregroundStyle(.secondary)
+            Text(job.location).font(.subheadline).foregroundStyle(.secondary)
+        }
+    }
+
+    @ViewBuilder
+    var prioritySection: some View {
+        HStack(spacing: 10) {
+            PriorityBadge(score: job.priorityScore)
+            Text(job.priorityReasoning)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+        }
+        .padding()
+    }
+
+    @ViewBuilder
+    func priorityHeaderGlass<Content: View>(_ content: Content) -> some View {
+        if #available(iOS 26, *) {
+            content.glassEffect(.regular, in: .rect(cornerRadius: 14))
+        } else {
+            content
+        }
+    }
+
+    @ViewBuilder
+    func priorityCardGlass<Content: View>(_ content: Content) -> some View {
+        switch priorityCardStyle() {
+        case .glass(let radius):
+            if #available(iOS 26, *) {
+                content.glassEffect(.regular, in: .rect(cornerRadius: radius))
+            }
+        case .material(let radius):
+            content.background(.ultraThinMaterial, in: .rect(cornerRadius: radius))
+        }
+    }
 }

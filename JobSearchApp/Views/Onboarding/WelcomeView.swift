@@ -19,18 +19,49 @@ struct WelcomeView: View {
                     .padding(.horizontal, 24)
             }
             Spacer()
-            // iOS 26+: TODO replace with .buttonStyle(.glassProminent)
             Button(action: onStart) {
                 Text("Build My Profile")
                     .font(.headline)
                     .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(Color.accentColor)
-                    .foregroundStyle(.white)
-                    .clipShape(.rect(cornerRadius: 14))
             }
+            .applyWelcomeCTAStyle()
             .padding(.horizontal, 24)
             .padding(.bottom, 40)
+        }
+    }
+}
+
+// MARK: - Liquid Glass helpers
+
+enum WelcomeCTAStyle: Equatable {
+    case glassProminent
+    case fallbackAccent
+}
+
+func welcomeCTAStyle() -> WelcomeCTAStyle {
+    if #available(iOS 26, *) {
+        .glassProminent
+    } else {
+        .fallbackAccent
+    }
+}
+
+private extension View {
+    @ViewBuilder
+    func applyWelcomeCTAStyle() -> some View {
+        switch welcomeCTAStyle() {
+        case .glassProminent:
+            if #available(iOS 26, *) {
+                self.buttonStyle(.glassProminent)
+            } else {
+                self
+            }
+        case .fallbackAccent:
+            self
+                .padding()
+                .background(Color.accentColor)
+                .foregroundStyle(.white)
+                .clipShape(.rect(cornerRadius: 14))
         }
     }
 }
