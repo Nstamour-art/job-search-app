@@ -118,7 +118,7 @@ final class OnboardingViewModel: ObservableObject {
 struct OnboardingView: View {
     @StateObject private var vm = OnboardingViewModel()
     @EnvironmentObject private var coordinator: OnboardingCoordinator
-    @EnvironmentObject private var container: AppContainer
+    @Environment(AppContainer.self) private var container
     @Environment(\.modelContext) private var modelContext
 
     var body: some View {

@@ -5,7 +5,7 @@ struct GenerateDocumentsView: View {
     let job: JobPosting
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
-    @EnvironmentObject private var container: AppContainer
+    @Environment(AppContainer.self) private var container
     @Query private var profiles: [UserProfile]
 
     enum GenerationTarget: String, CaseIterable, Identifiable {

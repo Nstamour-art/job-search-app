@@ -3,7 +3,7 @@ import SwiftData
 
 @main
 struct JobSearchApp: App {
-    @StateObject private var container = AppContainer()
+    @State private var container = AppContainer()
     @StateObject private var onboardingCoordinator = OnboardingCoordinator()
     let sharedModelContainer: ModelContainer
 
@@ -23,10 +23,10 @@ struct JobSearchApp: App {
             Group {
                 if onboardingCoordinator.isOnboardingComplete {
                     MainTabView()
-                        .environmentObject(container)
+                        .environment(container)
                 } else {
                     OnboardingView()
-                        .environmentObject(container)
+                        .environment(container)
                         .environmentObject(onboardingCoordinator)
                 }
             }

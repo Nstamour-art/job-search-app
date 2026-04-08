@@ -4,7 +4,7 @@ import SwiftData
 struct DiscoverView: View {
     @Query(sort: \JobPosting.dateFound, order: .reverse) private var allJobs: [JobPosting]
     @Environment(\.modelContext) private var modelContext
-    @EnvironmentObject private var container: AppContainer
+    @Environment(AppContainer.self) private var container
     @Query private var profiles: [UserProfile]
 
     @State private var showAddJob = false

@@ -1,22 +1,25 @@
 import Foundation
+import Observation
 
+@Observable
 @MainActor
-final class AppContainer: ObservableObject {
-    let keychain = KeychainManager.shared
-    lazy var llmService: any LLMService = makeLLMService()
+final class AppContainer {
+    var llmService: any LLMService
 
-    private func makeLLMService() -> any LLMService {
-        if let key = try? keychain.retrieve(forKey: KeychainKeys.anthropicAPIKey),
-           !key.isEmpty {
-            return AnthropicLLMService(apiKey: key)
-        }
-        // Returns mock with empty string until user configures API key.
-        // SettingsViewModel will recreate llmService after key is saved.
-        return MockLLMService(response: "")
+    init() {
+        llmService = AppContainer.buildLLMService()
     }
 
     func refreshLLMService() {
-        llmService = makeLLMService()
+        llmService = AppContainer.buildLLMService()
+    }
+
+    private static func buildLLMService() -> any LLMService {
+        if let key = try? KeychainManager.shared.retrieve(forKey: KeychainKeys.anthropicAPIKey),
+           !key.isEmpty {
+            return AnthropicLLMService(apiKey: key)
+        }
+        return MockLLMService(response: "")
     }
 }
 
