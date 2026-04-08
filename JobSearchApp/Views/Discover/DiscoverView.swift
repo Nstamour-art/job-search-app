@@ -42,6 +42,9 @@ struct DiscoverView: View {
                         }
                         .padding(.top, 8)
                         .padding(.horizontal)
+                        .allowsHitTesting(false)
+                        .accessibilityElement(children: .combine)
+                        .accessibilityAddTraits(.isStaticText)
                     }
                 }
             }
