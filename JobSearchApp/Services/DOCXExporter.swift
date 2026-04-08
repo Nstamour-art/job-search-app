@@ -2,13 +2,13 @@ import Foundation
 import ZIPFoundation
 
 enum DOCXExporter {
-    static func export(_ text: String) -> Data {
-        guard let archive = Archive(accessMode: .create) else { return Data() }
+    static func export(_ text: String) -> Data? {
+        guard let archive = Archive(accessMode: .create) else { return nil }
         add(to: archive, path: "[Content_Types].xml",          content: contentTypes)
         add(to: archive, path: "_rels/.rels",                  content: relationships)
         add(to: archive, path: "word/document.xml",            content: document(for: text))
         add(to: archive, path: "word/_rels/document.xml.rels", content: wordRelationships)
-        return archive.data ?? Data()
+        return archive.data
     }
 
     // MARK: - Private helpers
