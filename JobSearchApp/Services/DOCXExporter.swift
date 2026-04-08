@@ -15,12 +15,11 @@ enum DOCXExporter {
 
     private static func add(to archive: Archive, path: String, content: String) {
         let data = Data(content.utf8)
+        guard let uncompressedSize = UInt32(exactly: data.count) else { return }
         try? archive.addEntry(
             with: path,
             type: .file,
-            uncompressedSize: Int64(data.count),
-            compressionMethod: .none,
-            bufferSize: data.count
+            uncompressedSize: uncompressedSize
         ) { position, size in
             let start = Int(position)
             let end = min(data.count, start + size)
