@@ -12,8 +12,17 @@ struct JobSearchApp: App {
             UserProfile.self, WorkExperience.self, Education.self,
             Project.self, ResumeTheme.self, JobPosting.self, GeneratedDocument.self
         ])
-        let config = ModelConfiguration(schema: schema, cloudKitDatabase: .none)
-        sharedModelContainer = try! ModelContainer(for: schema, configurations: [config])
+        if let cloudContainer = try? ModelContainer(
+            for: schema,
+            configurations: [ModelConfiguration(schema: schema, cloudKitDatabase: .automatic)]
+        ) {
+            sharedModelContainer = cloudContainer
+        } else {
+            sharedModelContainer = try! ModelContainer(
+                for: schema,
+                configurations: [ModelConfiguration(schema: schema, cloudKitDatabase: .none)]
+            )
+        }
     }
 
     var body: some Scene {
