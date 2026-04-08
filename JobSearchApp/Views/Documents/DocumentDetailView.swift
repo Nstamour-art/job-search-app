@@ -3,6 +3,10 @@ import UIKit
 
 struct DocumentDetailView: View {
     let document: GeneratedDocument
+    @Environment(\.modelContext) private var modelContext
+
+    @State private var isEditing = false
+    @State private var editContent = ""
     @State private var showSharePDF = false
     @State private var pdfData: Data?
     @State private var docxData: Data?
@@ -22,23 +26,53 @@ struct DocumentDetailView: View {
     }
 
     var body: some View {
-        ScrollView {
-            Text(textContent)
-                .font(.body)
-                .padding()
-                .frame(maxWidth: .infinity, alignment: .leading)
+        Group {
+            if isEditing {
+                TextEditor(text: $editContent)
+                    .font(.body)
+                    .padding()
+            } else {
+                ScrollView {
+                    Text(textContent)
+                        .font(.body)
+                        .padding()
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                }
+            }
         }
         .navigationTitle(documentTitle)
         .navigationBarTitleDisplayMode(.inline)
+        .navigationBarBackButtonHidden(isEditing)
         .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
-                Menu {
-                    ShareLink("Share as Text", item: textContent)
-                    Button("Export as PDF") { exportPDF() }
-                    Button("Export as DOCX") { exportDOCX() }
-                    Button("Save to Files…") { saveToFiles() }
-                } label: {
-                    Image(systemName: "square.and.arrow.up")
+            if isEditing {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button("Cancel") {
+                        isEditing = false
+                    }
+                }
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button("Done") {
+                        saveEdits()
+                        isEditing = false
+                    }
+                    .fontWeight(.semibold)
+                }
+            } else {
+                ToolbarItem(placement: .topBarTrailing) {
+                    HStack(spacing: 16) {
+                        Button("Edit") {
+                            editContent = textContent
+                            isEditing = true
+                        }
+                        Menu {
+                            ShareLink("Share as Text", item: textContent)
+                            Button("Export as PDF") { exportPDF() }
+                            Button("Export as DOCX") { exportDOCX() }
+                            Button("Save to Files…") { saveToFiles() }
+                        } label: {
+                            Image(systemName: "square.and.arrow.up")
+                        }
+                    }
                 }
             }
         }
@@ -57,6 +91,14 @@ struct DocumentDetailView: View {
                 DocumentPickerView(url: url)
             }
         }
+    }
+
+    // MARK: - Actions
+
+    private func saveEdits() {
+        document.richContent = Data(editContent.utf8)
+        document.lastModified = Date()
+        try? modelContext.save()
     }
 
     private func exportPDF() {
