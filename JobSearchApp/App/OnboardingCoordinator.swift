@@ -1,8 +1,10 @@
 import Foundation
+import Observation
 
+@Observable
 @MainActor
-final class OnboardingCoordinator: ObservableObject {
-    @Published private(set) var isOnboardingComplete: Bool
+final class OnboardingCoordinator {
+    private(set) var isOnboardingComplete: Bool
 
     private static let key = "com.jobsearch.onboardingComplete"
 
@@ -15,7 +17,6 @@ final class OnboardingCoordinator: ObservableObject {
         isOnboardingComplete = true
     }
 
-    /// Call from Settings or debug menu to re-trigger onboarding.
     func resetOnboarding() {
         UserDefaults.standard.removeObject(forKey: Self.key)
         isOnboardingComplete = false

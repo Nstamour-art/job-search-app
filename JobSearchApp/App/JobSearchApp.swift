@@ -4,7 +4,7 @@ import SwiftData
 @main
 struct JobSearchApp: App {
     @State private var container = AppContainer()
-    @StateObject private var onboardingCoordinator = OnboardingCoordinator()
+    @State private var onboardingCoordinator = OnboardingCoordinator()
     let sharedModelContainer: ModelContainer
 
     init() {
@@ -27,7 +27,7 @@ struct JobSearchApp: App {
                 } else {
                     OnboardingView()
                         .environment(container)
-                        .environmentObject(onboardingCoordinator)
+                        .environment(onboardingCoordinator)
                 }
             }
         }
