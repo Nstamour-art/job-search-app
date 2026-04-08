@@ -20,6 +20,7 @@ struct JobDetailView: View {
                 }
 
                 // Priority
+                // iOS 26+: TODO replace .ultraThinMaterial with .glassEffect(.regular, in: .rect(cornerRadius: 10))
                 HStack(spacing: 10) {
                     PriorityBadge(score: job.priorityScore)
                     Text(job.priorityReasoning)
@@ -27,8 +28,7 @@ struct JobDetailView: View {
                         .foregroundStyle(.secondary)
                 }
                 .padding()
-                .background(Color(.secondarySystemBackground))
-                .clipShape(.rect(cornerRadius: 10))
+                .background(.ultraThinMaterial, in: .rect(cornerRadius: 10))
 
                 // URL link
                 if !job.url.isEmpty, let url = URL(string: job.url) {

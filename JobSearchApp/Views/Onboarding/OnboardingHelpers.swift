@@ -55,6 +55,8 @@ struct SkillsChipsView: View {
     @Binding var skills: [String]
 
     var body: some View {
+        // iOS 26+: TODO wrap in GlassEffectContainer(spacing: 8) and replace background with
+        // .glassEffect(.regular.tint(.accentColor).interactive(), in: .capsule)
         FlowLayout(spacing: 8) {
             ForEach(skills, id: \.self) { skill in
                 HStack(spacing: 4) {
@@ -65,8 +67,8 @@ struct SkillsChipsView: View {
                 }
                 .padding(.horizontal, 10)
                 .padding(.vertical, 5)
-                .background(Color.accentColor.opacity(0.15))
-                .clipShape(Capsule())
+                .background(.thinMaterial, in: Capsule())
+                .overlay(Capsule().strokeBorder(.tint.opacity(0.3), lineWidth: 1))
             }
         }
     }

@@ -51,6 +51,8 @@ struct DiscoverView: View {
                             try? modelContext.save()
                         }
                     }
+                    // iOS 26+: TODO lift progress/error out of List and render as glass overlay cards
+                    // using .glassEffect(.regular, in: .rect(cornerRadius: 12)) on floating HStack/Text views
                 }
             }
             .navigationTitle("Discover")

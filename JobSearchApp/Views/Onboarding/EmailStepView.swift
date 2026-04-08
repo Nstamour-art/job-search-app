@@ -9,7 +9,7 @@ struct EmailStepView: View {
                 StepHeader(
                     step: "Step 2 of 5",
                     title: "Contact Info",
-                    prompt: "Your email and location appear on your resume. Phone is optional."
+                    prompt: "Your email and location appear on your resume."
                 )
 
                 VStack(spacing: 16) {
@@ -32,7 +32,7 @@ struct EmailStepView: View {
 
                     VStack(alignment: .leading, spacing: 4) {
                         Text("Phone (optional)").font(.caption.bold()).foregroundStyle(.secondary)
-                        TextField("+1 416 555 0100", text: $vm.phone)
+                        TextField("416-555-0100", text: $vm.phone)
                             .textFieldStyle(.roundedBorder)
                             .textContentType(.telephoneNumber)
                             .keyboardType(.phonePad)

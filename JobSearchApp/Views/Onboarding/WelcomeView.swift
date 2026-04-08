@@ -19,6 +19,7 @@ struct WelcomeView: View {
                     .padding(.horizontal, 24)
             }
             Spacer()
+            // iOS 26+: TODO replace with .buttonStyle(.glassProminent)
             Button(action: onStart) {
                 Text("Build My Profile")
                     .font(.headline)

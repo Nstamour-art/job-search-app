@@ -21,9 +21,9 @@ struct ClaudeKeyStepView: View {
                         .textInputAutocapitalization(.never)
 
                     Button {
-                        openURL(URL(string: "https://console.anthropic.com/keys")!)
+                        openURL(URL(string: "https://platform.anthropic.com/")!)
                     } label: {
-                        Label("Get a key at console.anthropic.com", systemImage: "arrow.up.right.square")
+                        Label("Get a key at platform.anthropic.com", systemImage: "arrow.up.right.square")
                             .font(.caption)
                     }
                 }
