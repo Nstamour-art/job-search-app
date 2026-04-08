@@ -20,7 +20,7 @@ struct DiscoverView: View {
                 if savedJobs.isEmpty && !searchVM.isSearching {
                     ContentUnavailableView(
                         "No Saved Jobs",
-                        systemImage: "briefcase.badge.plus",
+                        systemImage: "magnifyingglass",
                         description: Text("Search for jobs above or tap + to add one manually.")
                     )
                 } else {
