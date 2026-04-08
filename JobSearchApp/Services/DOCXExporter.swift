@@ -2,21 +2,28 @@ import Foundation
 import ZIPFoundation
 
 enum DOCXExporter {
-    static func export(_ text: String) -> Data {
-        let archive = Archive(accessMode: .create)!
+    static func export(_ text: String) -> Data? {
+        guard let archive = Archive(accessMode: .create) else { return nil }
         add(to: archive, path: "[Content_Types].xml",          content: contentTypes)
         add(to: archive, path: "_rels/.rels",                  content: relationships)
         add(to: archive, path: "word/document.xml",            content: document(for: text))
         add(to: archive, path: "word/_rels/document.xml.rels", content: wordRelationships)
-        return archive.data!
+        return archive.data
     }
 
     // MARK: - Private helpers
 
     private static func add(to archive: Archive, path: String, content: String) {
         let data = Data(content.utf8)
-        try? archive.addEntry(with: path, type: .file, uncompressedSize: UInt32(data.count)) { position, size in
-            data.subdata(in: position..<position + size)
+        guard let uncompressedSize = UInt32(exactly: data.count) else { return }
+        try? archive.addEntry(
+            with: path,
+            type: .file,
+            uncompressedSize: uncompressedSize
+        ) { position, size in
+            let start = Int(position)
+            let end = min(data.count, start + size)
+            return data.subdata(in: start..<end)
         }
     }
 

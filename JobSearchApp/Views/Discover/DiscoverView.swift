@@ -25,22 +25,6 @@ struct DiscoverView: View {
                     )
                 } else {
                     List {
-                        if searchVM.isSearching, let progress = searchVM.progress {
-                            Section {
-                                HStack(spacing: 12) {
-                                    ProgressView()
-                                    Text(progress).font(.subheadline).foregroundStyle(.secondary)
-                                }
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                            }
-                        }
-
-                        if let error = searchVM.errorMessage {
-                            Section {
-                                Text(error).font(.caption).foregroundStyle(.red)
-                            }
-                        }
-
                         ForEach(savedJobs) { job in
                             NavigationLink(destination: JobDetailView(job: job)) {
                                 JobRow(job: job)
@@ -51,8 +35,17 @@ struct DiscoverView: View {
                             try? modelContext.save()
                         }
                     }
-                    // iOS 26+: TODO lift progress/error out of List and render as glass overlay cards
-                    // using .glassEffect(.regular, in: .rect(cornerRadius: 12)) on floating HStack/Text views
+                    .overlay(alignment: .top) {
+                        VStack(spacing: 8) {
+                            progressOverlay
+                            errorOverlay
+                        }
+                        .padding(.top, 8)
+                        .padding(.horizontal)
+                        .allowsHitTesting(false)
+                        .accessibilityElement(children: .combine)
+                        .accessibilityAddTraits(.isStaticText)
+                    }
                 }
             }
             .navigationTitle("Discover")
@@ -99,5 +92,59 @@ private struct JobRow: View {
             Spacer()
         }
         .padding(.vertical, 2)
+    }
+}
+
+// MARK: - Liquid Glass helpers
+
+enum DiscoverOverlayStyle: Equatable {
+    case glass(cornerRadius: CGFloat)
+    case plain
+}
+
+func discoverOverlayStyle() -> DiscoverOverlayStyle {
+    if #available(iOS 26, *) {
+        .glass(cornerRadius: 12)
+    } else {
+        .plain
+    }
+}
+
+private extension DiscoverView {
+    @ViewBuilder
+    var progressOverlay: some View {
+        if let progress = searchVM.progress {
+            overlayCard {
+                HStack(spacing: 12) {
+                    ProgressView()
+                    Text(progress).font(.subheadline).foregroundStyle(.secondary)
+                }
+            }
+        }
+    }
+
+    @ViewBuilder
+    var errorOverlay: some View {
+        if let error = searchVM.errorMessage {
+            overlayCard {
+                Text(error).font(.caption).foregroundStyle(.red)
+            }
+        }
+    }
+
+    @ViewBuilder
+    func overlayCard<Content: View>(@ViewBuilder content: () -> Content) -> some View {
+        switch discoverOverlayStyle() {
+        case .glass(let radius):
+            if #available(iOS 26, *) {
+                content()
+                    .padding(12)
+                    .glassEffect(.regular, in: .rect(cornerRadius: radius))
+            }
+        case .plain:
+            content()
+                .padding(12)
+                .background(.thinMaterial, in: .rect(cornerRadius: 12))
+        }
     }
 }

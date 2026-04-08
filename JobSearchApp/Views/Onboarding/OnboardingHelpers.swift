@@ -55,22 +55,7 @@ struct SkillsChipsView: View {
     @Binding var skills: [String]
 
     var body: some View {
-        // iOS 26+: TODO wrap in GlassEffectContainer(spacing: 8) and replace background with
-        // .glassEffect(.regular.tint(.accentColor).interactive(), in: .capsule)
-        FlowLayout(spacing: 8) {
-            ForEach(skills, id: \.self) { skill in
-                HStack(spacing: 4) {
-                    Text(skill).font(.caption)
-                    Button { skills.removeAll { $0 == skill } } label: {
-                        Image(systemName: "xmark").font(.caption2)
-                    }
-                }
-                .padding(.horizontal, 10)
-                .padding(.vertical, 5)
-                .background(.thinMaterial, in: Capsule())
-                .overlay(Capsule().strokeBorder(.tint.opacity(0.3), lineWidth: 1))
-            }
-        }
+        chipsContainer
     }
 }
 
@@ -98,6 +83,68 @@ struct FlowLayout: Layout {
             sub.place(at: CGPoint(x: x, y: y), proposal: .unspecified)
             x += size.width + spacing
             lineH = max(lineH, size.height)
+        }
+    }
+}
+
+// MARK: - Liquid Glass helpers
+
+enum SkillChipStyle: Equatable {
+    case glass
+    case material
+}
+
+func skillChipStyle() -> SkillChipStyle {
+    if #available(iOS 26, *) {
+        .glass
+    } else {
+        .material
+    }
+}
+
+private extension SkillsChipsView {
+    @ViewBuilder
+    var chipsContainer: some View {
+        if #available(iOS 26, *) {
+            GlassEffectContainer(spacing: 8) {
+                chipsFlow
+            }
+        } else {
+            chipsFlow
+        }
+    }
+
+    @ViewBuilder
+    var chipsFlow: some View {
+        FlowLayout(spacing: 8) {
+            ForEach(skills, id: \.self) { skill in
+                chipView(skill)
+            }
+        }
+    }
+
+    @ViewBuilder
+    func chipView(_ skill: String) -> some View {
+        let base = HStack(spacing: 4) {
+            Text(skill).font(.caption)
+            Button { skills.removeAll { $0 == skill } } label: {
+                Image(systemName: "xmark").font(.caption2)
+            }
+        }
+        .padding(.horizontal, 10)
+        .padding(.vertical, 5)
+
+        switch skillChipStyle() {
+        case .glass:
+            if #available(iOS 26, *) {
+                base.glassEffect(.regular.tint(.accentColor).interactive(), in: .capsule)
+            } else {
+                base
+            }
+        case .material:
+            base
+                .background(.thinMaterial, in: Capsule())
+                .overlay(Capsule().strokeBorder(.tint.opacity(0.3), lineWidth: 1))
         }
     }
 }

@@ -6,11 +6,12 @@ final class DOCXExporterTests: XCTestCase {
 
     func test_export_returnsNonEmptyData() {
         let data = DOCXExporter.export("Hello\nWorld")
-        XCTAssertFalse(data.isEmpty)
+        XCTAssertNotNil(data)
+        XCTAssertFalse(data?.isEmpty == true)
     }
 
     func test_export_producesValidZIP() throws {
-        let data = DOCXExporter.export("Test document")
+        let data = try XCTUnwrap(DOCXExporter.export("Test document"))
         let archive = try Archive(data: data, accessMode: .read)
         let entries = archive.map { $0.path }
         XCTAssertTrue(entries.contains("[Content_Types].xml"), "Missing [Content_Types].xml")
@@ -20,7 +21,7 @@ final class DOCXExporterTests: XCTestCase {
     }
 
     func test_export_documentXMLContainsText() throws {
-        let data = DOCXExporter.export("Swift is great")
+        let data = try XCTUnwrap(DOCXExporter.export("Swift is great"))
         let archive = try Archive(data: data, accessMode: .read)
         guard let entry = archive["word/document.xml"] else {
             XCTFail("word/document.xml missing")
@@ -33,7 +34,7 @@ final class DOCXExporterTests: XCTestCase {
     }
 
     func test_export_handlesMultipleLines() throws {
-        let data = DOCXExporter.export("Line 1\nLine 2\nLine 3")
+        let data = try XCTUnwrap(DOCXExporter.export("Line 1\nLine 2\nLine 3"))
         let archive = try Archive(data: data, accessMode: .read)
         guard let entry = archive["word/document.xml"] else {
             XCTFail("word/document.xml missing"); return

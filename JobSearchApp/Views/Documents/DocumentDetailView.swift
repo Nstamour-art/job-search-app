@@ -13,6 +13,9 @@ struct DocumentDetailView: View {
     @State private var showShareDOCX = false
     @State private var docxFileURL: URL?
     @State private var showFilePicker = false
+    @State private var exportError: String?
+
+    private static let exportFailureMessage = "Failed to generate DOCX file."
 
     private var textContent: String {
         String(data: document.richContent, encoding: .utf8) ?? ""
@@ -91,6 +94,14 @@ struct DocumentDetailView: View {
                 DocumentPickerView(url: url)
             }
         }
+        .alert("Export Failed", isPresented: Binding(
+            get: { exportError != nil },
+            set: { if !$0 { exportError = nil } }
+        )) {
+            Button("OK", role: .cancel) { exportError = nil }
+        } message: {
+            if let error = exportError { Text(error) }
+        }
     }
 
     // MARK: - Actions
@@ -107,7 +118,11 @@ struct DocumentDetailView: View {
     }
 
     private func exportDOCX() {
-        docxData = DOCXExporter.export(textContent)
+        guard let data = DOCXExporter.export(textContent) else {
+            exportError = Self.exportFailureMessage
+            return
+        }
+        docxData = data
         showShareDOCX = true
     }
 
@@ -115,7 +130,10 @@ struct DocumentDetailView: View {
         let filename = "\(documentTitle)_\(filenameSafeDate()).docx"
         let dir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
         let fileURL = dir.appendingPathComponent(filename)
-        let data = DOCXExporter.export(textContent)
+        guard let data = DOCXExporter.export(textContent) else {
+            exportError = Self.exportFailureMessage
+            return
+        }
         do {
             try data.write(to: fileURL)
             docxFileURL = fileURL
