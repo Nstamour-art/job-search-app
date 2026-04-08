@@ -5,6 +5,10 @@ struct DocumentDetailView: View {
     let document: GeneratedDocument
     @State private var showSharePDF = false
     @State private var pdfData: Data?
+    @State private var docxData: Data?
+    @State private var showShareDOCX = false
+    @State private var docxFileURL: URL?
+    @State private var showFilePicker = false
 
     private var textContent: String {
         String(data: document.richContent, encoding: .utf8) ?? ""
@@ -31,6 +35,8 @@ struct DocumentDetailView: View {
                 Menu {
                     ShareLink("Share as Text", item: textContent)
                     Button("Export as PDF") { exportPDF() }
+                    Button("Export as DOCX") { exportDOCX() }
+                    Button("Save to Files…") { saveToFiles() }
                 } label: {
                     Image(systemName: "square.and.arrow.up")
                 }
@@ -41,11 +47,47 @@ struct DocumentDetailView: View {
                 ActivityViewController(activityItems: [data])
             }
         }
+        .sheet(isPresented: $showShareDOCX) {
+            if let data = docxData {
+                ActivityViewController(activityItems: [data])
+            }
+        }
+        .sheet(isPresented: $showFilePicker) {
+            if let url = docxFileURL {
+                DocumentPickerView(url: url)
+            }
+        }
     }
 
     private func exportPDF() {
         pdfData = makePDF(from: textContent)
         showSharePDF = true
+    }
+
+    private func exportDOCX() {
+        docxData = DOCXExporter.export(textContent)
+        showShareDOCX = true
+    }
+
+    private func saveToFiles() {
+        let filename = "\(documentTitle)_\(filenameSafeDate()).docx"
+        let dir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+        let fileURL = dir.appendingPathComponent(filename)
+        let data = DOCXExporter.export(textContent)
+        do {
+            try data.write(to: fileURL)
+            docxFileURL = fileURL
+            showFilePicker = true
+        } catch {
+            docxData = data
+            showShareDOCX = true
+        }
+    }
+
+    private func filenameSafeDate() -> String {
+        let f = DateFormatter()
+        f.dateFormat = "yyyy-MM-dd"
+        return f.string(from: Date())
     }
 
     private func makePDF(from text: String) -> Data {
@@ -77,6 +119,19 @@ struct ActivityViewController: UIViewControllerRepresentable {
     }
 
     func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {}
+}
+
+// MARK: - Document picker for saving to Files
+
+struct DocumentPickerView: UIViewControllerRepresentable {
+    let url: URL
+
+    func makeUIViewController(context: Context) -> UIDocumentPickerViewController {
+        let picker = UIDocumentPickerViewController(forExporting: [url])
+        return picker
+    }
+
+    func updateUIViewController(_ uiViewController: UIDocumentPickerViewController, context: Context) {}
 }
 
 // MARK: - Shared document row (used by JobDetailView and DocumentsView)
