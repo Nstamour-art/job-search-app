@@ -6,6 +6,7 @@ struct JobDetailView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
     @State private var showGenerateDocs = false
+    @State private var applyItem: ApplyItem?
 
     var body: some View {
         ScrollView {
@@ -50,6 +51,13 @@ struct JobDetailView: View {
                     .buttonStyle(.bordered)
                     .frame(maxWidth: .infinity)
 
+                // Apply button — only shown when the posting has a URL
+                if let url = URL(string: job.url), !job.url.isEmpty {
+                    Button("Apply") { applyItem = ApplyItem(url: url) }
+                        .buttonStyle(.borderedProminent)
+                        .frame(maxWidth: .infinity)
+                }
+
                 if !job.documents.isEmpty {
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Generated Documents")
@@ -73,6 +81,9 @@ struct JobDetailView: View {
         .navigationBarTitleDisplayMode(.inline)
         .sheet(isPresented: $showGenerateDocs) {
             GenerateDocumentsView(job: job)
+        }
+        .sheet(item: $applyItem) { item in
+            SafariView(url: item.url)
         }
     }
 
@@ -109,4 +120,9 @@ struct JobDetailView: View {
         job.status = status
         try? modelContext.save()
     }
+}
+
+private struct ApplyItem: Identifiable {
+    let id = UUID()
+    let url: URL
 }
