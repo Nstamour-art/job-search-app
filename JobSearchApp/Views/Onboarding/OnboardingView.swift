@@ -33,18 +33,84 @@ import SwiftData
     // Step 5 — Tavily key
     var tavilyKey = ""
 
+    // MARK: - Inline validation errors (nil == valid)
+
+    var nameError: String?
+    var lastNameError: String?
+    var emailError: String?
+    var phoneError: String?
+    var locationError: String?
+
+    /// Whether we've attempted to submit the current step at least once.
+    /// Controls when inline errors start showing.
+    var didAttemptSubmit = false
+
+    // MARK: - Derived
+
     var fullName: String {
-        "\(firstName.trimmingCharacters(in: .whitespaces)) \(lastName.trimmingCharacters(in: .whitespaces))"
-            .trimmingCharacters(in: .whitespaces)
+        InputValidator.sanitizedName(first: firstName, last: lastName).full
     }
 
     var canAdvanceFromName: Bool {
-        !firstName.trimmingCharacters(in: .whitespaces).isEmpty
+        let sanitized = InputValidator.sanitizedName(first: firstName, last: lastName)
+        return !sanitized.first.isEmpty && !sanitized.last.isEmpty
     }
 
     var canAdvanceFromEmail: Bool {
-        !email.trimmingCharacters(in: .whitespaces).isEmpty &&
-        !location.trimmingCharacters(in: .whitespaces).isEmpty
+        InputValidator.isValidEmail(email) &&
+        InputValidator.isValidLocation(location) &&
+        phonePassesValidation
+    }
+
+    /// Phone is optional; valid when empty or when digits are in range.
+    private var phonePassesValidation: Bool {
+        let digits = InputValidator.phoneDigits(phone)
+        return digits.isEmpty || InputValidator.isValidPhoneDigits(digits)
+    }
+
+    // MARK: - Validation triggers
+
+    /// Revalidate name step fields; sets/clears error strings.
+    func validateName() {
+        let sanitized = InputValidator.sanitizedName(first: firstName, last: lastName)
+        nameError = sanitized.first.isEmpty ? "Enter your first name." : nil
+        lastNameError = sanitized.last.isEmpty ? "Enter your last name." : nil
+    }
+
+    /// Revalidate contact step fields.
+    func validateContact() {
+        emailError = InputValidator.isValidEmail(email) ? nil : "Enter a valid email."
+
+        let digits = InputValidator.phoneDigits(phone)
+        if digits.isEmpty {
+            phoneError = nil
+        } else {
+            phoneError = InputValidator.isValidPhoneDigits(digits) ? nil : "Enter a valid phone number."
+        }
+
+        locationError = InputValidator.isValidLocation(location) ? nil : "Enter your city and region."
+    }
+
+    // MARK: - Navigation
+
+    /// Attempt to advance; returns false if blocked by validation.
+    @discardableResult
+    func tryAdvance() -> Bool {
+        didAttemptSubmit = true
+
+        switch currentStep {
+        case .name:
+            validateName()
+            guard canAdvanceFromName else { return false }
+        case .email:
+            validateContact()
+            guard canAdvanceFromEmail else { return false }
+        default:
+            break
+        }
+        advance()
+        didAttemptSubmit = false
+        return true
     }
 
     func advance() {
@@ -52,21 +118,37 @@ import SwiftData
         currentStep = next
     }
 
+    // MARK: - Sanitize before save
+
+    /// Normalize all user-entered values before persisting.
+    private func sanitizeAll() {
+        let name = InputValidator.sanitizedName(first: firstName, last: lastName)
+        firstName = name.first
+        lastName = name.last
+        email = InputValidator.normalizeEmail(email)
+        let digits = InputValidator.phoneDigits(phone)
+        phone = digits
+        location = InputValidator.normalizeLocation(location)
+    }
+
     func saveProfile(context: ModelContext, coordinator: OnboardingCoordinator, container: AppContainer) {
+        sanitizeAll()
+
         if !claudeKey.trimmingCharacters(in: .whitespaces).isEmpty {
-            try? KeychainManager.shared.save(claudeKey, forKey: KeychainKeys.anthropicAPIKey)
+            try? KeychainManager.shared.save(claudeKey.trimmingCharacters(in: .whitespaces),
+                                             forKey: KeychainKeys.anthropicAPIKey)
         }
         if !tavilyKey.trimmingCharacters(in: .whitespaces).isEmpty {
-            try? KeychainManager.shared.save(tavilyKey, forKey: KeychainKeys.tavilyAPIKey)
+            try? KeychainManager.shared.save(tavilyKey.trimmingCharacters(in: .whitespaces),
+                                             forKey: KeychainKeys.tavilyAPIKey)
         }
         container.refreshLLMService()
 
         let basics = ProfileBasics(
             name: fullName.isEmpty ? firstName : fullName,
-            email: email.trimmingCharacters(in: .whitespaces),
-            phone: phone.trimmingCharacters(in: .whitespaces).isEmpty ? nil
-                   : phone.trimmingCharacters(in: .whitespaces),
-            location: location.trimmingCharacters(in: .whitespaces),
+            email: email,
+            phone: phone.isEmpty ? nil : phone,
+            location: location,
             linkedIn: nil, github: nil, website: nil
         )
         let profile = UserProfile(basics: basics)

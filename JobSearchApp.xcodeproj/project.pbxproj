@@ -61,6 +61,9 @@
 		FBE39E0A20B9E2E8A38EB47F /* URLSessionProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 67FA7BFEC08EAAC90A13CC93 /* URLSessionProtocol.swift */; };
 		FEBE85507F42556645140669 /* ProfileParseServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8A467FF163487C99BEFEB28 /* ProfileParseServiceTests.swift */; };
 		FF6F95CFAC401C2388A0452E /* ProfileParseService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 77191967D5445F3DCAB74CBB /* ProfileParseService.swift */; };
+		E5F607182930A1B2C3D4E5F6 /* InputValidator.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F60718A9B0C1D2 /* InputValidator.swift */; };
+		F607182930B2C3D4E5F60718 /* InputValidatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2C3D4E5F6071829A0B1C2D3 /* InputValidatorTests.swift */; };
+		E6F708293041D5E6F7082930 /* ValidatedField.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5E6F70829304152C3D4E5F6 /* ValidatedField.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -130,6 +133,9 @@
 		FB175B9E740142CA3305A309 /* JobAnalysisServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JobAnalysisServiceTests.swift; sourceTree = "<group>"; };
 		FB741C93804816EC4BB437E1 /* KeychainManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainManager.swift; sourceTree = "<group>"; };
 		FCA7563012FE40C0BE8E2EF6 /* NameStepView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NameStepView.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F60718A9B0C1D2 /* InputValidator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputValidator.swift; sourceTree = "<group>"; };
+		B2C3D4E5F6071829A0B1C2D3 /* InputValidatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputValidatorTests.swift; sourceTree = "<group>"; };
+		D5E6F70829304152C3D4E5F6 /* ValidatedField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValidatedField.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -185,9 +191,18 @@
 				1305E1CED9B5DC213CDDEB8E /* Helpers */,
 				DD910ADD9DE5593ECA121AFF /* Models */,
 				741D18461888ACFCF2579AAA /* Services */,
+				D4E5F60718293041C2D3E4F5 /* Utilities */,
 				937035C383FE786AD2E4F439 /* ViewModels */,
 			);
 			path = JobSearchAppTests;
+			sourceTree = "<group>";
+		};
+		D4E5F60718293041C2D3E4F5 /* Utilities */ = {
+			isa = PBXGroup;
+			children = (
+				B2C3D4E5F6071829A0B1C2D3 /* InputValidatorTests.swift */,
+			);
+			path = Utilities;
 			sourceTree = "<group>";
 		};
 		360D46463619732B1F2C4C00 /* Settings */ = {
@@ -207,10 +222,19 @@
 				1EFA191A8F791BA2425E7EC6 /* App */,
 				831A8F6BDE1901BFF6303ED9 /* Models */,
 				87F3B267DD0AAD8E28C19E32 /* Services */,
+				C3D4E5F607182930B1C2D3E4 /* Utilities */,
 				E05368D739349FB229CACB99 /* ViewModels */,
 				C5D701A0DAEA48548468EE8C /* Views */,
 			);
 			path = JobSearchApp;
+			sourceTree = "<group>";
+		};
+		C3D4E5F607182930B1C2D3E4 /* Utilities */ = {
+			isa = PBXGroup;
+			children = (
+				A1B2C3D4E5F60718A9B0C1D2 /* InputValidator.swift */,
+			);
+			path = Utilities;
 			sourceTree = "<group>";
 		};
 		5DFDC5AB7B9BA158489E8A2A /* Applications */ = {
@@ -225,6 +249,7 @@
 			isa = PBXGroup;
 			children = (
 				6B0131332BEC7E4D62180A62 /* SafariView.swift */,
+				D5E6F70829304152C3D4E5F6 /* ValidatedField.swift */,
 			);
 			path = Shared;
 			sourceTree = "<group>";
@@ -468,6 +493,7 @@
 				FEBE85507F42556645140669 /* ProfileParseServiceTests.swift in Sources */,
 				723C19AC5EEBEFBEF30512E7 /* SwiftDataModelTests.swift in Sources */,
 				2FFF7A40CB4BE7198FE9DE28 /* TavilyServiceSearchTests.swift in Sources */,
+				F607182930B2C3D4E5F60718 /* InputValidatorTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -517,6 +543,8 @@
 				08A74EC0F5A7D0096B48695B /* UserProfile.swift in Sources */,
 				FA3776B2D3B14AC7714E35EE /* WelcomeView.swift in Sources */,
 				E06F75A959C5FABA54BCAC69 /* WorkExperienceFormView.swift in Sources */,
+				E5F607182930A1B2C3D4E5F6 /* InputValidator.swift in Sources */,
+				E6F708293041D5E6F7082930 /* ValidatedField.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

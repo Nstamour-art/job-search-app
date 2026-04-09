@@ -39,14 +39,39 @@ struct SettingsView: View {
                     viewModel.saveKeys(container: container)
                 }
                 .frame(maxWidth: .infinity)
-                if let message = viewModel.saveMessage {
-                    Text(message)
-                        .foregroundStyle(message.hasPrefix("Error") ? .red : .green)
-                        .frame(maxWidth: .infinity)
-                }
+                .disabled(!viewModel.hasChanges)
             }
         }
         .navigationTitle("Settings")
         .onAppear { viewModel.loadKeys() }
+        // Brief green "Saved" toast overlay
+        .overlay(alignment: .bottom) {
+            if viewModel.showSavedConfirmation {
+                savedToast
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
+                    .onAppear {
+                        // Auto-dismiss after 1.5 seconds
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                            withAnimation(.easeOut(duration: 0.3)) {
+                                viewModel.dismissSavedConfirmation()
+                            }
+                        }
+                    }
+            }
+        }
+        .animation(.easeInOut(duration: 0.25), value: viewModel.showSavedConfirmation)
+        // Clear stale error on next edit
+        .onChange(of: viewModel.anthropicKey) { viewModel.saveMessage = nil }
+        .onChange(of: viewModel.tavilyKey) { viewModel.saveMessage = nil }
+    }
+
+    private var savedToast: some View {
+        Text("Saved")
+            .font(.subheadline.bold())
+            .foregroundStyle(.white)
+            .padding(.horizontal, 24)
+            .padding(.vertical, 10)
+            .background(.green, in: Capsule())
+            .padding(.bottom, 24)
     }
 }

@@ -4,6 +4,10 @@ struct ClaudeKeyStepView: View {
     @Bindable var vm: OnboardingViewModel
     @Environment(\.openURL) private var openURL
 
+    private var keyIsValid: Bool {
+        !vm.claudeKey.trimmingCharacters(in: .whitespaces).isEmpty
+    }
+
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 28) {
@@ -19,6 +23,8 @@ struct ClaudeKeyStepView: View {
                         .textFieldStyle(.roundedBorder)
                         .autocorrectionDisabled()
                         .textInputAutocapitalization(.never)
+                        .submitLabel(.done)
+                        .onSubmit { if keyIsValid { vm.advance() } }
 
                     Button {
                         openURL(URL(string: "https://platform.anthropic.com/")!)
@@ -33,7 +39,7 @@ struct ClaudeKeyStepView: View {
                         .buttonStyle(.borderedProminent)
                         .controlSize(.large)
                         .frame(maxWidth: .infinity)
-                        .disabled(vm.claudeKey.trimmingCharacters(in: .whitespaces).isEmpty)
+                        .disabled(!keyIsValid)
 
                     Button("Skip for now") { vm.advance() }
                         .buttonStyle(.plain)

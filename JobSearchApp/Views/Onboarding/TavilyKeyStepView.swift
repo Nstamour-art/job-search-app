@@ -5,6 +5,10 @@ struct TavilyKeyStepView: View {
     let onFinish: () -> Void
     @Environment(\.openURL) private var openURL
 
+    private var keyIsValid: Bool {
+        !vm.tavilyKey.trimmingCharacters(in: .whitespaces).isEmpty
+    }
+
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 28) {
@@ -20,6 +24,8 @@ struct TavilyKeyStepView: View {
                         .textFieldStyle(.roundedBorder)
                         .autocorrectionDisabled()
                         .textInputAutocapitalization(.never)
+                        .submitLabel(.done)
+                        .onSubmit { if keyIsValid { onFinish() } }
 
                     Button {
                         openURL(URL(string: "https://app.tavily.com/home")!)
@@ -36,6 +42,7 @@ struct TavilyKeyStepView: View {
                     .buttonStyle(.borderedProminent)
                     .controlSize(.large)
                     .frame(maxWidth: .infinity)
+                    .disabled(!keyIsValid)
 
                     Button("Skip for now") {
                         onFinish()

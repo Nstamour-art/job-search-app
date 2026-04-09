@@ -2,6 +2,9 @@ import SwiftUI
 
 struct NameStepView: View {
     @Bindable var vm: OnboardingViewModel
+    @FocusState private var focusedField: Field?
+
+    private enum Field: Hashable { case first, last }
 
     var body: some View {
         ScrollView {
@@ -13,32 +16,52 @@ struct NameStepView: View {
                 )
 
                 VStack(spacing: 16) {
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("First Name").font(.caption.bold()).foregroundStyle(.secondary)
+                    ValidatedField(
+                        label: "First Name",
+                        error: vm.didAttemptSubmit ? vm.nameError : nil
+                    ) {
                         TextField("Jane", text: $vm.firstName)
-                            .textFieldStyle(.roundedBorder)
                             .textContentType(.givenName)
                             .autocorrectionDisabled()
+                            .focused($focusedField, equals: .first)
+                            .submitLabel(.next)
+                            .onSubmit { focusedField = .last }
                     }
 
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("Last Name").font(.caption.bold()).foregroundStyle(.secondary)
+                    ValidatedField(
+                        label: "Last Name",
+                        error: vm.didAttemptSubmit ? vm.lastNameError : nil
+                    ) {
                         TextField("Doe", text: $vm.lastName)
-                            .textFieldStyle(.roundedBorder)
                             .textContentType(.familyName)
                             .autocorrectionDisabled()
+                            .focused($focusedField, equals: .last)
+                            .submitLabel(.done)
+                            .onSubmit { attemptAdvance() }
                     }
                 }
 
-                Button("Next") { vm.advance() }
+                Button("Next") { attemptAdvance() }
                     .buttonStyle(.borderedProminent)
                     .controlSize(.large)
                     .frame(maxWidth: .infinity)
-                    .disabled(!vm.canAdvanceFromName)
             }
             .padding()
         }
         .navigationTitle("Your Name")
         .navigationBarBackButtonHidden(true)
+        .onChange(of: vm.firstName) {
+            if vm.didAttemptSubmit { vm.validateName() }
+        }
+        .onChange(of: vm.lastName) {
+            if vm.didAttemptSubmit { vm.validateName() }
+        }
+    }
+
+    private func attemptAdvance() {
+        if !vm.tryAdvance() {
+            if vm.nameError != nil { focusedField = .first }
+            else if vm.lastNameError != nil { focusedField = .last }
+        }
     }
 }
